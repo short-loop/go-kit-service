@@ -55,46 +55,46 @@ func NewHTTPHandler(ep endpoint.Endpoint, dec DecodeRequestFunc, enc EncodeRespo
 func main() {
 	router := gin.Default()
 	shortloopSdk, err := shortloopgin.Init(shortloopgin.Options{
-		ShortloopEndpoint: "http://localhost:8080",                // the shortloop url for your org. (Provided by ShortLoop team.)
-		ApplicationName:   "go-kit-8",                             // your application name here.
-		AuthKey:           "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", // ShortLoop Auth Key. (Provided by ShortLoop team.)
-		Environment:       "stage",                                // for e.g stage or prod
-		LoggingEnabled:    true,                                   // enable logging
+		ShortloopEndpoint: "http://localhost:8080", // the shortloop url for your org. (Provided by ShortLoop team.)
+		ApplicationName:   "go-kit-9",              // your application name here.
+		Environment:       "stage",                 // for e.g stage or prod
+		LoggingEnabled:    true,                    // enable logging
 		LogLevel:          "INFO",
+		// no auth key added since its critical
 	})
 	if err != nil {
 		fmt.Println("Error initializing shortloopgin: ", err)
 	} else {
 		router.Use(shortloopSdk.Filter())
 	}
+	v1 := router.Group("/v1")
+	v1.GET("/test", NewHTTPHandler(TestEndpoint, DecodeRequest, EncodeJSONResponse))
 
-	//helloEndpoint := func(c context.Context, request interface{}) (interface{}, error) {
-	//
-	//	obj := map[string]string{
-	//		"message": "hello",
-	//	}
-	//	return obj, nil
-	//}
-
-	// Create the HTTP transport handler for the endpoint.
-	//helloHandler := httptransport.NewServer(
-	//	makeEndpoint(helloEndpoint),
-	//	decodeRequest,
-	//	encodeResponse,
-	//)
-
-	//router.GET("/hello", func(c *gin.Context) {
-	//	helloHandler.ServeHTTP(c.Writer, c.Request)
-	//})
-
-	router.GET("/test", NewHTTPHandler(TestEndpoint, DecodeRequest, EncodeJSONResponse))
-
-	router.GET("/hello2", func(c *gin.Context) {
+	v1.GET("/hello2", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "hello2"})
 	})
 
 	router.Run(":8300")
 }
+
+//helloEndpoint := func(c context.Context, request interface{}) (interface{}, error) {
+//
+//	obj := map[string]string{
+//		"message": "hello",
+//	}
+//	return obj, nil
+//}
+
+// Create the HTTP transport handler for the endpoint.
+//helloHandler := httptransport.NewServer(
+//	makeEndpoint(helloEndpoint),
+//	decodeRequest,
+//	encodeResponse,
+//)
+
+//router.GET("/hello", func(c *gin.Context) {
+//	helloHandler.ServeHTTP(c.Writer, c.Request)
+//})
 
 // makeEndpoint creates an endpoint from a function that takes a context and a request,
 // and returns a response and an error.
